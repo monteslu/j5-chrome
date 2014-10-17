@@ -1,0 +1,34 @@
+{
+  "name": "Johnny-Five Chrome",
+  "description": "Use Johnny-Five inside of a chrome application",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "page": "background.html",
+      "persistent": false
+    }
+  },
+  "permissions": [
+    "serial",
+    "unlimitedStorage",
+    "http://*/",
+    "https://*/",
+    "*://*/",
+    "tts",
+    "notifications",
+    "storage",
+    "videoCapture",
+    "audioCapture"
+  ],
+  "sandbox": {
+    "pages": ["sandbox.html"]
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "64": "icon64.png",
+    "128": "icon128.png",
+    "480": "icon480.png"
+  }
+}

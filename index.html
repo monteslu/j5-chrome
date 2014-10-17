@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>johnny-five</title>
+
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="editor/built-editor.css"/>
+
+  </head>
+  <body>
+
+    <div style="margin: 4px;">
+      <span style="text-align: left;">
+        <span class="btn btn-lg">Port:</span> <select class="btn btn-lg" id="serialSelect"></select>
+        <button type="button" class="btn btn-primary btn-lg" id="refreshBtn">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+      </span>
+
+      <span style="float: right;">
+      <button type="button" class="btn btn-success btn-lg" id="runBtn">
+        RUN <span class="glyphicon glyphicon-play"></span>
+      </button>
+      </span>
+    </div>
+
+    <div>
+      <pre style="height: 250px; margin: 4px;" class="editor" id="input-func-editor" ></pre>
+    </div>
+
+    <!-- our apps code and other dependencies -->
+    <script src="ui.js"></script>
+
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="editor/built-editor.min.js"></script>
+
+    <!-- this actually luanches the application -->
+    <script src="editor/launch.js"></script>
+
+  </body>
+</html>

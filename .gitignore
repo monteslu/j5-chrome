@@ -1,0 +1,6 @@
+build.zip
+build
+.DS_Store
+node_modules
+bundles
+
