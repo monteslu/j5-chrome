@@ -1,11 +1,15 @@
 var $ = require('jquery');
 var _ = require('lodash');
 
+var SerialPort = require('browser-serialport').SerialPort;
+
 window.$ = $;
 window.jQuery = $;
 window._ = _;
 
 var selectList;
+var connectedSerial;
+var sandboxWindow;
 
 var DEFAULT_SCRIPT = '/* \n'
   + ' This script is executed when johnny-five is connected\n\n'
@@ -25,6 +29,11 @@ var DEFAULT_SCRIPT = '/* \n'
 
 function startApp(){
   console.log('starting app');
+
+  //WOW this a nasty way to talk to the sandbox
+  sandboxWindow = window.opener.document.getElementById('sandboxFrame').contentWindow;
+
+
   //TODO handle this with bootstrap?
   $( window ).resize(resizeEditor);
   resizeEditor();
@@ -32,6 +41,31 @@ function startApp(){
   $("#refreshBtn").click(loadDevices);
   $("#runBtn").click(runCode);
   setEditorText();
+
+  window.addEventListener('message', function(event) {
+    var source = event.source;
+    //console.log('sandbox message received', event.data);
+    var command = event.data.command;
+    var data = event.data.data;
+    if(command === 'serial' && connectedSerial && data) {
+      console.log('serial into ui', event.data);
+      connectedSerial.write(data, function(err){
+        console.log('wrote data', data, err);
+      });
+    //   var uint8View = new Uint8Array(data);
+    //   var string = "";
+    //   for (var i = 0; i < data.byteLength; i++) {
+    //     string += String.fromCharCode(uint8View[i]);
+    //   }
+
+    //   //console.log("Got data", string, readInfo.data);
+
+    //   //Maybe this should be a Buffer()
+    //   connectedSerial.publishEvent("data", uint8View);
+    //   connectedSerial.publishEvent("dataString", string);
+    //
+    }
+  });
 
 }
 
@@ -61,12 +95,13 @@ function loadDevices(){
 
     //Create and append the options
     for (var i = 0; i < ports.length; i++) {
+        console.log('port', ports[i]);
         var option = document.createElement("option");
-        option.value = i;
+        option.value = ports[i].path;
         option.text = ports[i].path;
         selectList.appendChild(option);
-        console.log(option);
-        console.log(selectList);
+        //console.log(option);
+        //console.log(selectList);
     }
 
 
@@ -75,14 +110,33 @@ function loadDevices(){
 }
 
 function runCode(){
-  //WOW this a nasty way to talk to the sandbox
-  var sandboxWindow = window.opener.document.getElementById('sandboxFrame').contentWindow;
+  if(connectedSerial){
+    connectedSerial.close(startupJ5);
+  }
+  else{
+    startupJ5();
+  }
 
-  var message = {
-                 command: 'runScript',
-                 functionStr: window.funcEditor.getText()
-               };
-  sandboxWindow.postMessage(message, '*');
+}
+
+function startupJ5(){
+  connectedSerial = new SerialPort($( "#serialSelect" ).val(), {
+    baudrate: 57600,
+    buffersize: 1
+  });
+  connectedSerial.on('data', function(data){
+    sandboxWindow.postMessage({
+      command: 'serial',
+      functionStr: data
+    }, '*');
+  });
+
+  console.log('posting runScript');
+
+  sandboxWindow.postMessage({
+    command: 'runScript',
+    functionStr: window.funcEditor.getText()
+  }, '*');
 }
 
 window.startApp = startApp;

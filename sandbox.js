@@ -3,7 +3,7 @@ var _ = require('lodash');
 var five = require('johnny-five');
 var firmata = require('firmata');
 var skynet = require('skynet');
-var SerialPort = require('browser-serialport').SerialPort;
+var SerialPort = require('./lib/postSerial').SerialPort;
 
 window.$ = $;
 window._ = _;
@@ -28,9 +28,10 @@ function cleanResult(result, name){
 }
 
 window.addEventListener('message', function(event) {
+  var source = event.source;
   //console.log('sandbox message received', event.data);
   var command = event.data.command;
-  if(command == 'runScript') {
+  if(command === 'runScript') {
       var portName = event.data.portName;
       var error = null;
       var respObj = {
@@ -38,7 +39,7 @@ window.addEventListener('message', function(event) {
       };
 
       function runScript(fstr){
-        eval("var results = (function(msg){"+fstr+"\n})(msg);");
+        eval("var results = (function(){"+fstr+"\n})();");
         return results;
       }
 
@@ -46,38 +47,42 @@ window.addEventListener('message', function(event) {
         event.source.postMessage(respObj, event.origin);
       }
 
-      function startupJ5(){
-        connectedSerial = new SerialPort(portName, {
-                              baudrate: 57600,
-                              buffersize: 1
-                          });
-        io = new firmata.Board(connectedSerial);
-        board = new five.Board(io);
-        board.on('ready', function(){
-          try{
-            runScript(event.data.functionStr);
-            respObj.result = 'ok';
-            reply();
-          }catch(e){
-            respObj.error = '' + e;
-            reply();
-          }
-        });
-        board.on('error', function(err){
+
+      connectedSerial = new SerialPort(event.source, event.origin);
+      console.log('starting firmata');
+
+      io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: true});
+      io.on('ready', function(ir){
+        console.log('io ready', ir);
+      });
+      io.on('error', function(err){
+        respObj.error = '' + e;
+        reply();
+      });
+
+      board = new five.Board({io: io, repl: false});
+      //board.on('ready', function(fr){
+        //console.log('five ready', fr)
+        try{
+          runScript(event.data.functionStr);
+          respObj.result = 'ok';
+          reply();
+        }catch(e){
           respObj.error = '' + e;
           reply();
-        });
-      }
-
-      if(connectedSerial){
-        connectedSerial.close(startupJ5);
-      }
-      else{
-        startupJ5();
-      }
+        }
+      //});
+      board.on('error', function(err){
+        respObj.error = '' + e;
+        reply();
+      });
 
 
-
+  } else if(command === 'serial'){
+    console.log('serial into sandbox', event.data);
+    if(connectedSerial && event.data && event.data.data){
+      connectedSerial.simulateRead(event.data.data);
+    }
 
   }
 });
