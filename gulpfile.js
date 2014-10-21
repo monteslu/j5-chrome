@@ -35,7 +35,7 @@ gulp.task('copyEditor', function(){
 });
 
 gulp.task('copy', function() {
-    gulp.src(['./*.png', './manifest.json', './*.html', './background.js'])
+    gulp.src(['./*.png', './manifest.json', './*.html', './background.js', './moreStyles.css'])
     .pipe(gulp.dest('./build/'));
 });
 

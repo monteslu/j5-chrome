@@ -5,7 +5,7 @@
   "main": "main.js",
   "dependencies": {
     "browser-serialport": "^1.0.6",
-    "firmata": "monteslu/firmata#nohandshake",
+    "firmata": "git://github.com/jgautier/firmata",
     "johnny-five": "monteslu/johnny-five#browserify",
     "jquery": "^2.1.1",
     "lodash": "^2.4.1",

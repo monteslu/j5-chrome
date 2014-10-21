@@ -9,7 +9,10 @@ window._ = _;
 
 var selectList;
 var connectedSerial;
-var sandboxWindow;
+var sandboxWindow, sandboxFrame;
+var queuedMsg;
+var infoQueue = [];
+var INFO_QUEUE_SIZE = 15;
 
 var DEFAULT_SCRIPT = '/* \n'
   + ' This script is executed when johnny-five is connected\n\n'
@@ -26,13 +29,10 @@ var DEFAULT_SCRIPT = '/* \n'
 
 
 
-
 function startApp(){
   console.log('starting app');
-
-  //WOW this a nasty way to talk to the sandbox
-  sandboxWindow = window.opener.document.getElementById('sandboxFrame').contentWindow;
-
+  sandboxFrame = document.getElementById('sandboxFrame');
+  sandboxWindow = sandboxFrame.contentWindow;
 
   //TODO handle this with bootstrap?
   $( window ).resize(resizeEditor);
@@ -46,24 +46,35 @@ function startApp(){
     var source = event.source;
     //console.log('sandbox message received', event.data);
     var command = event.data.command;
-    var data = event.data.data;
-    if(command === 'serial' && connectedSerial && data) {
-      console.log('serial into ui', event.data);
-      connectedSerial.write(data, function(err){
-        console.log('wrote data', data, err);
+    var data = event.data;
+    if(command === 'serial' && connectedSerial && data.data) {
+      //console.log('serial into ui', event.data);
+      connectedSerial.write(data.data, function(err){
+        //console.log('wrote data', data, err);
       });
-    //   var uint8View = new Uint8Array(data);
-    //   var string = "";
-    //   for (var i = 0; i < data.byteLength; i++) {
-    //     string += String.fromCharCode(uint8View[i]);
-    //   }
-
-    //   //console.log("Got data", string, readInfo.data);
-
-    //   //Maybe this should be a Buffer()
-    //   connectedSerial.publishEvent("data", uint8View);
-    //   connectedSerial.publishEvent("dataString", string);
-    //
+    } else if(command === 'ready'){
+      $("#runBtn").prop("disabled",false);
+      if(queuedMsg){
+        sandboxWindow.postMessage(queuedMsg, '*');
+        queuedMsg = null;
+      }
+    } else if(command === 'info'){
+      if(data.text){
+        infoQueue.unshift(data);
+        if(infoQueue.length > INFO_QUEUE_SIZE){
+          infoQueue.pop();
+        }
+      }
+      //TODO use a react view.
+      var infoArea = document.getElementById('infoArea');
+      infoArea.innerHTML = '';
+      _.forEach(infoQueue, function(info){
+        var infoMsg = document.createElement("div");
+        //TOTO sanitize message, or use a proper view tech
+        infoMsg.innerHTML = info.text;
+        infoMsg.className = 'alert thinAlert alert-' + info.type;
+        infoArea.appendChild(infoMsg);
+      });
     }
   });
 
@@ -75,7 +86,7 @@ function setEditorText(){
 
 function resizeEditor(){
   console.log('resizing');
-  $("#input-func-editor").css("height",($( window ).height()-175)+"px");
+  $("#input-func-editor").css("height",($( window ).height()-220)+"px");
 }
 
 function loadDevices(){
@@ -100,18 +111,22 @@ function loadDevices(){
         option.value = ports[i].path;
         option.text = ports[i].path;
         selectList.appendChild(option);
-        //console.log(option);
-        //console.log(selectList);
-    }
 
+    }
 
   });
 
 }
 
 function runCode(){
+  $("#runBtn").prop("disabled",true);
+  infoQueue = [];
+  document.getElementById('infoArea').innerHTML = '';
   if(connectedSerial){
-    connectedSerial.close(startupJ5);
+    connectedSerial.on('close', function(){
+      setTimeout(startupJ5, 1000);
+    });
+    connectedSerial.close();
   }
   else{
     startupJ5();
@@ -119,7 +134,10 @@ function runCode(){
 
 }
 
+
+
 function startupJ5(){
+
   connectedSerial = new SerialPort($( "#serialSelect" ).val(), {
     baudrate: 57600,
     buffersize: 1
@@ -127,16 +145,17 @@ function startupJ5(){
   connectedSerial.on('data', function(data){
     sandboxWindow.postMessage({
       command: 'serial',
-      functionStr: data
+      data: data
     }, '*');
   });
 
   console.log('posting runScript');
-
-  sandboxWindow.postMessage({
+  queuedMsg = {
     command: 'runScript',
     functionStr: window.funcEditor.getText()
-  }, '*');
+  };
+  sandboxFrame.src = sandboxFrame.src + '';
+
 }
 
 window.startApp = startApp;

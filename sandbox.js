@@ -5,17 +5,19 @@ var firmata = require('firmata');
 var skynet = require('skynet');
 var SerialPort = require('./lib/postSerial').SerialPort;
 
+var Repl = require('johnny-five/lib/repl');
+Repl.isBlocked = true;
+
 window.$ = $;
 window._ = _;
 window.five = five;
 window.firmata = firmata;
 window.skynet = skynet;
 
-var connectedSerial, io;
+var connectedSerial, io, board;
 
 
 console.log('launching sandbox');
-
 
 
 window.alert = function(){};
@@ -27,62 +29,69 @@ function cleanResult(result, name){
   return result;
 }
 
+function log(text, type){
+  var msg = {
+    command: 'info',
+    text: String(new Date()) + ' : ' + String(text),
+    type: type || 'success'
+  };
+  window.parent.postMessage(msg, '*');
+}
+
 window.addEventListener('message', function(event) {
   var source = event.source;
   //console.log('sandbox message received', event.data);
   var command = event.data.command;
+  var data = event.data;
   if(command === 'runScript') {
-      var portName = event.data.portName;
       var error = null;
-      var respObj = {
-        command: 'handleResponse'
-      };
 
       function runScript(fstr){
+        console.log('running script');
         eval("var results = (function(){"+fstr+"\n})();");
         return results;
       }
 
-      function reply(){
-        event.source.postMessage(respObj, event.origin);
-      }
 
+      connectedSerial = new SerialPort(window.parent);
+      log('connecting...', 'warning');
 
-      connectedSerial = new SerialPort(event.source, event.origin);
-      console.log('starting firmata');
-
-      io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: true});
-      io.on('ready', function(ir){
+      io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
+      io.once('ready', function(ir){
         console.log('io ready', ir);
-      });
-      io.on('error', function(err){
-        respObj.error = '' + e;
-        reply();
-      });
-
-      board = new five.Board({io: io, repl: false});
-      //board.on('ready', function(fr){
-        //console.log('five ready', fr)
+        log('connect success');
+        io.name = 'fake serial';
+        io.isReady = true;
+        io.ready = true;
+        board = new five.Board({io: io, repl: false});
+        //board.on('ready', function(fr){
+          //console.log('five ready', fr)
         try{
           runScript(event.data.functionStr);
-          respObj.result = 'ok';
-          reply();
+          log('script run ok');
         }catch(e){
-          respObj.error = '' + e;
-          reply();
+          log(e, 'danger');
         }
-      //});
-      board.on('error', function(err){
-        respObj.error = '' + e;
-        reply();
+        //});
+        board.on('error', function(err){
+          log(e, 'danger');
+        });
       });
+      io.on('error', function(err){
+        log(e, 'danger');
+      });
+
 
 
   } else if(command === 'serial'){
-    console.log('serial into sandbox', event.data);
-    if(connectedSerial && event.data && event.data.data){
-      connectedSerial.simulateRead(event.data.data);
+    //console.log('serial into sandbox', data, connectedSerial);
+    if(connectedSerial && data && data.data){
+      connectedSerial.simulateRead(data.data);
     }
 
   }
 });
+
+window.parent.postMessage({
+    command: 'ready'
+}, '*');
