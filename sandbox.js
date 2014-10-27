@@ -44,51 +44,42 @@ window.addEventListener('message', function(event) {
   var command = event.data.command;
   var data = event.data;
   if(command === 'runScript') {
-      var error = null;
+    var error = null;
 
-      function runScript(fstr){
-        console.log('running script');
-        eval("var results = (function(){"+fstr+"\n})();");
-        return results;
-      }
-
-
-      connectedSerial = new SerialPort(window.parent);
-      log('connecting...', 'warning');
-
-      io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
-      io.once('ready', function(ir){
-        console.log('io ready', ir);
-        log('connect success');
-        io.name = 'fake serial';
-        io.isReady = true;
-        io.ready = true;
-        board = new five.Board({io: io, repl: false});
-        //board.on('ready', function(fr){
-          //console.log('five ready', fr)
-        try{
-          runScript(event.data.functionStr);
-          log('script run ok');
-        }catch(e){
-          log(e, 'danger');
-        }
-        //});
-        board.on('error', function(err){
-          log(e, 'danger');
-        });
-      });
-      io.on('error', function(err){
-        log(e, 'danger');
-      });
-
-
-
-  } else if(command === 'serial'){
-    //console.log('serial into sandbox', data, connectedSerial);
-    if(connectedSerial && data && data.data){
-      connectedSerial.simulateRead(data.data);
+    function runScript(fstr){
+      console.log('running script');
+      eval("var results = (function(){"+fstr+"\n})();");
+      return results;
     }
 
+
+    connectedSerial = new SerialPort(window.parent);
+    log('connecting...', 'warning');
+
+    io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
+    io.once('ready', function(ir){
+      console.log('io ready', ir);
+      log('connect success');
+      io.name = 'fake serial';
+      io.isReady = true;
+      io.ready = true;
+      board = new five.Board({io: io, repl: false});
+      //board.on('ready', function(fr){
+        //console.log('five ready', fr)
+      try{
+        runScript(event.data.functionStr);
+        log('script run ok');
+      }catch(e){
+        log(e, 'danger');
+      }
+      //});
+      board.on('error', function(err){
+        log(e, 'danger');
+      });
+    });
+    io.on('error', function(err){
+      log(e, 'danger');
+    });
   }
 });
 
