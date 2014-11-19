@@ -1,44 +1,41 @@
+'use strict';
+
+var path = require('path');
+
 var gulp = require('gulp');
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var source = require('vinyl-source-stream');
-var browserify = require('browserify');
+var webpack = require('webpack');
 
-
-
-gulp.task('browserifySandbox', function() {
-    return browserify('./sandbox.js')
-        .bundle()
-        //Pass desired output filename to vinyl-source-stream
-        .pipe(source('sandbox.js'))
-        // Start piping stream to tasks!
-        .pipe(gulp.dest('./build/'));
-});
-
-gulp.task('browserifyUI', function() {
-    return browserify('./ui.js')
-        .bundle()
-        //Pass desired output filename to vinyl-source-stream
-        .pipe(source('ui.js'))
-        // Start piping stream to tasks!
-        .pipe(gulp.dest('./build/'));
+gulp.task('bundle', function(cb) {
+  webpack({
+    entry: {
+      ui: './ui',
+      sandbox: './sandbox'
+    },
+    output: {
+      path: path.join(__dirname, './build'),
+      filename: '[name].js'
+    },
+    module: {
+      loaders: [
+        { test: /\.jsx$/, loader: 'jsx-loader?harmony=true' },
+        { test: /\.css$/, loader: 'style-loader!css-loader' },
+        { test: /\.less$/, loader: 'style-loader!css-loader!less-loader' }
+      ]
+    },
+    externals: {
+      repl: 'repl'
+    }
+  }, cb);
 });
 
 gulp.task('copyBootstrap', function(){
-    gulp.src('./bootstrap/**')
+  return gulp.src('./bootstrap/**')
     .pipe(gulp.dest('./build/bootstrap'));
 });
 
-gulp.task('copyEditor', function(){
-    gulp.src('./editor/**')
-    .pipe(gulp.dest('./build/editor'));
-});
-
 gulp.task('copy', function() {
-    gulp.src(['./*.png', './manifest.json', './*.html', './background.js', './moreStyles.css'])
+  return gulp.src(['./*.png', './manifest.json', './*.html', './background.js', './*.css'])
     .pipe(gulp.dest('./build/'));
 });
 
-gulp.task('default', ['browserifySandbox','browserifyUI', 'copy', 'copyBootstrap', 'copyEditor'], function() {
-
-});
+gulp.task('default', ['bundle', 'copy', 'copyBootstrap']);

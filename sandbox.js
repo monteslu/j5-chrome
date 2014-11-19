@@ -1,8 +1,9 @@
+window.repl = {}; // fake it til you make it
+
 var $ = require('jquery');
 var _ = require('lodash');
 var five = require('johnny-five');
 var firmata = require('firmata');
-var skynet = require('skynet');
 var SerialPort = require('./lib/postSerial').SerialPort;
 
 var Repl = require('johnny-five/lib/repl');
@@ -12,7 +13,6 @@ window.$ = $;
 window._ = _;
 window.five = five;
 window.firmata = firmata;
-window.skynet = skynet;
 
 var connectedSerial, io, board;
 
@@ -54,7 +54,7 @@ window.addEventListener('message', function(event) {
 
 
     connectedSerial = new SerialPort(window.parent);
-    log('connecting...', 'warning');
+    log('connecting...', 'info');
 
     io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){

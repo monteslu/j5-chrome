@@ -1,11 +1,6 @@
 var $ = require('jquery');
-var _ = require('lodash');
 
 var SerialPort = require('browser-serialport').SerialPort;
-
-window.$ = $;
-window.jQuery = $;
-window._ = _;
 
 var selectList;
 var connectedSerial;
@@ -14,33 +9,22 @@ var queuedMsg;
 var infoQueue = [];
 var INFO_QUEUE_SIZE = 15;
 
-var DEFAULT_SCRIPT = '/* \n'
-  + ' This script is executed when johnny-five is connected\n\n'
-  + ' You have the following variables availaible to your script:\n'
-  + '   five  = The full johnny-five API !\n'
-  + '   board = this connected johnny-five instance\n'
-  + '   io    = the firmata instance for the board\n'
-  + '   $     = jQuery, because you might already know jQuery\n'
-  + '   _     = lodash, because lodash is awesome\n'
-  + '*/ \n\n\n'
-  + '// Default to pin 13\n'
-  + 'var led = new five.Led(13);\n'
-  + 'led.blink();';
+var View = require('./view.jsx');
 
+var React = require('react');
 
+var view = React.render(React.createElement(View), document.getElementById('editor'));
+startApp();
+console.log(view);
 
 function startApp(){
   console.log('starting app');
   sandboxFrame = document.getElementById('sandboxFrame');
   sandboxWindow = sandboxFrame.contentWindow;
 
-  //TODO handle this with bootstrap?
-  $( window ).resize(resizeEditor);
-  resizeEditor();
   loadDevices();
   $("#refreshBtn").click(loadDevices);
   $("#runBtn").click(runCode);
-  setEditorText();
 
   window.addEventListener('message', function(event) {
     var source = event.source;
@@ -68,7 +52,7 @@ function startApp(){
       //TODO use a react view.
       var infoArea = document.getElementById('infoArea');
       infoArea.innerHTML = '';
-      _.forEach(infoQueue, function(info){
+      infoQueue.forEach(function(info){
         var infoMsg = document.createElement("div");
         //TOTO sanitize message, or use a proper view tech
         infoMsg.innerHTML = info.text;
@@ -78,15 +62,6 @@ function startApp(){
     }
   });
 
-}
-
-function setEditorText(){
-  window.funcEditor.setText(DEFAULT_SCRIPT);
-}
-
-function resizeEditor(){
-  console.log('resizing');
-  $("#input-func-editor").css("height",($( window ).height()-220)+"px");
 }
 
 function loadDevices(){
@@ -134,10 +109,7 @@ function runCode(){
 
 }
 
-
-
 function startupJ5(){
-
   connectedSerial = new SerialPort($( "#serialSelect" ).val(), {
     baudrate: 57600,
     buffersize: 1
@@ -152,10 +124,7 @@ function startupJ5(){
   console.log('posting runScript');
   queuedMsg = {
     command: 'runScript',
-    functionStr: window.funcEditor.getText()
+    functionStr: view.state.content
   };
   sandboxFrame.src = sandboxFrame.src + '';
-
 }
-
-window.startApp = startApp;
