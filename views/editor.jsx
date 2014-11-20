@@ -5,7 +5,6 @@ var CodeMirror = require('react-code-mirror');
 require('codemirror/mode/javascript/javascript');
 require('codemirror/lib/codemirror.css');
 require('codemirror/theme/monokai.css');
-require('./styles.less');
 
 var DEFAULT_SCRIPT = '/* \n'
   + ' This script is executed when johnny-five is connected\n\n'

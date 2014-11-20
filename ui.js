@@ -9,17 +9,27 @@ var queuedMsg;
 var infoQueue = [];
 var INFO_QUEUE_SIZE = 15;
 
-var View = require('./view.jsx');
+var Editor = require('./views/editor.jsx');
+var Devices = require('./views/devices.jsx');
+require('./styles.less');
 
 var React = require('react');
 
-var view = React.render(React.createElement(View), document.getElementById('editor'));
+var editor = React.render(React.createElement(Editor), document.getElementById('editor'));
 startApp();
-console.log(view);
+var serialSelect;
+
+function createSandbox(){
+  var sandbox = document.createElement('iframe');
+  sandbox.src = 'sandbox.html';
+  sandbox.style.display = 'none';
+  document.body.appendChild(sandbox);
+  return sandbox;
+}
 
 function startApp(){
   console.log('starting app');
-  sandboxFrame = document.getElementById('sandboxFrame');
+  sandboxFrame = createSandbox();
   sandboxWindow = sandboxFrame.contentWindow;
 
   loadDevices();
@@ -66,29 +76,33 @@ function startApp(){
 
 function loadDevices(){
 
-  chrome.serial.getDevices(function (queriedPorts) {
-    console.log(queriedPorts);
-    ports = queriedPorts;
+  chrome.serial.getDevices(function (devices) {
+    console.log(devices);
+    try {
+      serialSelect = React.render(React.createElement(Devices, { devices: devices }), document.getElementById('devices'));
+    } catch(e){ console.log(e); }
+    console.log(serialSelect);
+    // console.log(queriedPorts);
+    // ports = queriedPorts;
 
 
-    selectList = document.getElementById('serialSelect');
+    // selectList = document.getElementById('serialSelect');
 
-    //remove any existing
-    $("#serialSelect option").each(function() {
-      //console.log('removing');
-      $(this).remove();
-    });
+    // //remove any existing
+    // $("#serialSelect option").each(function() {
+    //   //console.log('removing');
+    //   $(this).remove();
+    // });
 
-    //Create and append the options
-    for (var i = 0; i < ports.length; i++) {
-        console.log('port', ports[i]);
-        var option = document.createElement("option");
-        option.value = ports[i].path;
-        option.text = ports[i].path;
-        selectList.appendChild(option);
+    // //Create and append the options
+    // for (var i = 0; i < ports.length; i++) {
+    //     console.log('port', ports[i]);
+    //     var option = document.createElement("option");
+    //     option.value = ports[i].path;
+    //     option.text = ports[i].path;
+    //     selectList.appendChild(option);
 
-    }
-
+    // }
   });
 
 }
@@ -110,7 +124,7 @@ function runCode(){
 }
 
 function startupJ5(){
-  connectedSerial = new SerialPort($( "#serialSelect" ).val(), {
+  connectedSerial = new SerialPort(serialSelect.state.selectedDevice, {
     baudrate: 57600,
     buffersize: 1
   });
@@ -124,7 +138,7 @@ function startupJ5(){
   console.log('posting runScript');
   queuedMsg = {
     command: 'runScript',
-    functionStr: view.state.content
+    functionStr: editor.state.content
   };
   sandboxFrame.src = sandboxFrame.src + '';
 }
