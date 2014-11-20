@@ -4,7 +4,7 @@ var $ = require('jquery');
 var _ = require('lodash');
 var five = require('johnny-five');
 var firmata = require('firmata');
-var SerialPort = require('./lib/postSerial').SerialPort;
+var SerialPort = require('./lib/postSerial');
 
 var Repl = require('johnny-five/lib/repl');
 Repl.isBlocked = true;

@@ -37,15 +37,14 @@ function startApp(){
   $("#runBtn").click(runCode);
 
   window.addEventListener('message', function(event) {
-    var source = event.source;
-    //console.log('sandbox message received', event.data);
-    var command = event.data.command;
     var data = event.data;
-    if(command === 'serial' && connectedSerial && data.data) {
-      //console.log('serial into ui', event.data);
-      connectedSerial.write(data.data, function(err){
-        //console.log('wrote data', data, err);
-      });
+    var command = data && data.command;
+    var payload = data && data.payload;
+    if(command === 'open'){
+      console.log(data);
+    }
+    if(command === 'write' && connectedSerial && payload) {
+      connectedSerial.write(payload, function(err){});
     } else if(command === 'ready'){
       $("#runBtn").prop("disabled",false);
       if(queuedMsg){
@@ -78,31 +77,7 @@ function loadDevices(){
 
   chrome.serial.getDevices(function (devices) {
     console.log(devices);
-    try {
-      serialSelect = React.render(React.createElement(Devices, { devices: devices }), document.getElementById('devices'));
-    } catch(e){ console.log(e); }
-    console.log(serialSelect);
-    // console.log(queriedPorts);
-    // ports = queriedPorts;
-
-
-    // selectList = document.getElementById('serialSelect');
-
-    // //remove any existing
-    // $("#serialSelect option").each(function() {
-    //   //console.log('removing');
-    //   $(this).remove();
-    // });
-
-    // //Create and append the options
-    // for (var i = 0; i < ports.length; i++) {
-    //     console.log('port', ports[i]);
-    //     var option = document.createElement("option");
-    //     option.value = ports[i].path;
-    //     option.text = ports[i].path;
-    //     selectList.appendChild(option);
-
-    // }
+    serialSelect = React.render(React.createElement(Devices, { devices: devices }), document.getElementById('devices'));
   });
 
 }
@@ -130,8 +105,8 @@ function startupJ5(){
   });
   connectedSerial.on('data', function(data){
     sandboxWindow.postMessage({
-      command: 'serial',
-      data: data
+      command: 'write',
+      payload: data
     }, '*');
   });
 
