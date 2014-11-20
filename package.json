@@ -4,10 +4,10 @@
   "description": "johnny-five for chrome",
   "main": "main.js",
   "dependencies": {
-    "browser-serialport": "monteslu/browser-serialport#master",
+    "browser-serialport": "git://github.com/garrows/browser-serialport",
     "codemirror": "^4.7.0",
     "firmata": "git://github.com/jgautier/firmata",
-    "johnny-five": "monteslu/johnny-five#browserify",
+    "johnny-five": "git://github.com/rwaldron/johnny-five",
     "jquery": "^2.1.1",
     "lodash": "^2.4.1",
     "react": "^0.12.1",
