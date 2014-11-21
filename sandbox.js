@@ -16,18 +16,7 @@ window.firmata = firmata;
 
 var connectedSerial, io, board;
 
-
 console.log('launching sandbox');
-
-
-window.alert = function(){};
-
-function cleanResult(result, name){
-  if((typeof result != 'object') && (!Array.isArray(result))){
-    return {payload: result};
-  }
-  return result;
-}
 
 function log(text, type){
   var msg = {
@@ -39,40 +28,27 @@ function log(text, type){
 }
 
 window.addEventListener('message', function(event) {
-  var source = event.source;
-  //console.log('sandbox message received', event.data);
-  var command = event.data.command;
   var data = event.data;
-  if(command === 'runScript') {
-    var error = null;
-
-    function runScript(fstr){
-      console.log('running script');
-      eval("var results = (function(){"+fstr+"\n})();");
-      return results;
-    }
-
+  var command = data && data.command;
+  var payload = data && data.payload;
+  if(command === 'runScript' && payload) {
 
     connectedSerial = new SerialPort(window.parent);
     log('connecting...', 'info');
 
     io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
-      console.log('io ready', ir);
       log('connect success');
       io.name = 'fake serial';
       io.isReady = true;
       io.ready = true;
       board = new five.Board({io: io, repl: false});
-      //board.on('ready', function(fr){
-        //console.log('five ready', fr)
-      try{
-        runScript(event.data.functionStr);
+      try {
+        eval(payload);
         log('script run ok');
-      }catch(e){
+      } catch(e){
         log(e, 'danger');
       }
-      //});
       board.on('error', function(err){
         log(e, 'danger');
       });
@@ -83,6 +59,4 @@ window.addEventListener('message', function(event) {
   }
 });
 
-window.parent.postMessage({
-    command: 'ready'
-}, '*');
+window.parent.postMessage({ command: 'ready' }, '*');

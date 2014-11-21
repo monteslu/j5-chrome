@@ -113,7 +113,7 @@ function startupJ5(){
   console.log('posting runScript');
   queuedMsg = {
     command: 'runScript',
-    functionStr: editor.state.content
+    payload: editor.state.content
   };
   sandboxFrame.src = sandboxFrame.src + '';
 }
