@@ -9,7 +9,7 @@
     "codemirror": "^4.7.0",
     "firmata": "git://github.com/jgautier/firmata",
     "intel-hex": "^0.1.1",
-    "johnny-five": "git://github.com/rwaldron/johnny-five",
+    "johnny-five": "^0.8.30",
     "jquery": "^2.1.1",
     "lodash": "^2.4.1",
     "react": "^0.12.1",

@@ -23,6 +23,9 @@ gulp.task('bundle', function(cb) {
         { test: /ui\.js$/, loader: "transform?brfs" }
       ]
     },
+    plugins: [
+      new webpack.IgnorePlugin(/^serialport$/)
+    ],
     externals: {
       repl: 'repl'
     }
