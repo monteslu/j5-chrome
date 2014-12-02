@@ -1,6 +1,42 @@
+var fs = require('fs');
+
 var $ = require('jquery');
 
 var SerialPort = require('browser-serialport').SerialPort;
+
+var stk500 = require('stk500');
+var series = require('run-series');
+var hexParser = require('intel-hex');
+var image = fs.readFileSync('node_modules/stk500/arduino-1.0.6/uno/StandardFirmata.cpp.hex', 'utf8');
+var hex = hexParser.parse(image).data;
+var pageSize = 128;
+var baud = 115200;
+var delay1 = 1; //minimum is 2.5us, so anything over 1 fine?
+var delay2 = 1;
+
+var options = {
+  devicecode:0,
+  revision:0,
+  progtype:0,
+  parmode:0,
+  polling:0,
+  selftimed:0,
+  lockbytes:0,
+  fusebytes:0,
+  flashpollval1:0,
+  flashpollval2:0,
+  eeprompollval1:0,
+  eeprompollval2:0,
+  pagesizehigh:0,
+  pagesizelow:pageSize,
+  eepromsizehigh:0,
+  eepromsizelow:0,
+  flashsize4:0,
+  flashsize3:0,
+  flashsize2:0,
+  flashsize1:0
+};
+
 
 var selectList;
 var connectedSerial;
@@ -34,6 +70,7 @@ function startApp(){
 
   loadDevices();
   $("#refreshBtn").click(loadDevices);
+  $('#programBtn').click(programDevice);
   $("#runBtn").click(runCode);
 
   window.addEventListener('message', function(event) {
@@ -80,6 +117,38 @@ function loadDevices(){
     serialSelect = React.render(React.createElement(Devices, { devices: devices }), document.getElementById('devices'));
   });
 
+}
+
+function programDevice(){
+  $('#runBtn').prop('disabled', true);
+  $('#programBtn').prop('disabled', true);
+
+  var serial = new SerialPort(serialSelect.state.selectedDevice, {
+    baudrate: baud
+  }, false);
+
+  var programmer = new stk500(serial);
+
+  series([
+    programmer.connect.bind(programmer),
+    programmer.reset.bind(programmer, delay1, delay2),
+    programmer.sync.bind(programmer, 5),
+    programmer.setOptions.bind(programmer, options),
+    programmer.enterProgrammingMode.bind(programmer),
+    programmer.upload.bind(programmer, hex, pageSize),
+    programmer.exitProgrammingMode.bind(programmer),
+    programmer.disconnect.bind(programmer)
+  ], function(error){
+    $('#runBtn').prop('disabled', false);
+    $('#programBtn').prop('disabled', false);
+
+    if(error){
+      console.log("programing FAILED: " + error);
+      return;
+    }
+
+    console.log("programing SUCCESS!");
+  });
 }
 
 function runCode(){

@@ -19,7 +19,8 @@ gulp.task('bundle', function(cb) {
       loaders: [
         { test: /\.jsx$/, loader: 'jsx-loader?harmony=true' },
         { test: /\.css$/, loader: 'style-loader!css-loader' },
-        { test: /\.less$/, loader: 'style-loader!css-loader!less-loader' }
+        { test: /\.less$/, loader: 'style-loader!css-loader!less-loader' },
+        { test: /ui\.js$/, loader: "transform?brfs" }
       ]
     },
     externals: {
