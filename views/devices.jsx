@@ -6,7 +6,7 @@ var DevicesList = React.createClass({
 
   getInitialState: function(){
     return {
-      selectedDevice: this.props.devices[0]
+      selectedDevice: this.props.devices[0].path
     };
   },
 
