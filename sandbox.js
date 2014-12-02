@@ -27,6 +27,8 @@ function log(text, type){
   window.parent.postMessage(msg, '*');
 }
 
+window.log = log;
+
 window.addEventListener('message', function(event) {
   var data = event.data;
   var command = data && data.command;
@@ -36,15 +38,15 @@ window.addEventListener('message', function(event) {
     connectedSerial = new SerialPort(window.parent);
     log('connecting...', 'info');
 
-    io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
+    window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
       log('connect success');
       io.name = 'fake serial';
       io.isReady = true;
       io.ready = true;
-      board = new five.Board({io: io, repl: false});
+      window.board = board = new five.Board({io: io, repl: false});
       try {
-        eval(payload);
+        new Function(payload).bind(board)();
         log('script run ok');
       } catch(e){
         log(e, 'danger');
