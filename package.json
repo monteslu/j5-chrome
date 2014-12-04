@@ -15,7 +15,7 @@
     "react": "^0.12.1",
     "react-code-mirror": "^3.0.2",
     "run-series": "^1.0.2",
-    "stk500": "0.0.5",
+    "stk500": "0.0.6",
     "transform-loader": "^0.2.1"
   },
   "devDependencies": {
