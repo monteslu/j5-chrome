@@ -18,6 +18,13 @@ var connectedSerial, io, board;
 
 console.log('launching sandbox');
 
+//browserify should shim stdin
+process.stdin = process.stdin || {};
+process.stdin.resume = function(){};
+process.stdin.setEncoding = function(){};
+process.stdin.once = function(){};
+
+
 function log(text, type){
   var msg = {
     command: 'info',
@@ -41,19 +48,23 @@ window.addEventListener('message', function(event) {
     window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
       log('connect success');
-      io.name = 'fake serial';
-      io.isReady = true;
-      io.ready = true;
-      window.board = board = new five.Board({io: io, repl: false});
+      io.name = 'Firmata';
+
+      // window.board = board = new five.Board({io: io, repl: false});
       try {
-        new Function(payload).bind(board)();
+        new Function(payload)();
+        io.isReady = true;
+        //io.isConnected = true;
+        //io.ready = true;
+        io.emit('connect', {});
+        io.emit('ready', {});
         log('script run ok');
       } catch(e){
         log(e, 'danger');
       }
-      board.on('error', function(err){
-        log(e, 'danger');
-      });
+      // board.on('error', function(err){
+      //   log(e, 'danger');
+      // });
     });
     io.on('error', function(err){
       log(e, 'danger');
