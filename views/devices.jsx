@@ -25,8 +25,13 @@ var DevicesList = React.createClass({
 
   render: function(){
     var options = this.props.devices.map(function(device){
+      var text = device.path;
+      if(device.productId === 67 && device.vendorId === 9025){ // uno
+        text += '(Arduino Uno)';
+      }
+
       return (
-        <option key={device.path} value={device.path}>{device.path}</option>
+        <option key={device.path} value={device.path}>{text}</option>
       );
     });
 
