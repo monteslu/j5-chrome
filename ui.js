@@ -6,6 +6,7 @@ var SerialPort = require('browser-serialport').SerialPort;
 
 var stk500 = require('stk500');
 var series = require('run-series');
+var parallel = require('run-parallel');
 var hexParser = require('intel-hex');
 var image = fs.readFileSync('node_modules/stk500/arduino-1.0.6/uno/StandardFirmata.cpp.hex', 'utf8');
 var hex = hexParser.parse(image).data;
@@ -113,6 +114,45 @@ function startApp(){
 }
 
 function loadDevices(){
+
+  var uno = { productId: 67, vendorId: 9025 };
+
+  var handle;
+
+  series([
+    function(cb){
+      chrome.serial.getDevices(function(devices){
+        console.log('devices1', devices);
+        cb(null, devices);
+      });
+    },
+    function(cb){
+      chrome.usb.findDevices(uno, function(handles){
+        console.log('usb1', handles);
+        handle = handles[0];
+        cb(null, handles);
+      });
+    },
+    function(cb){
+      parallel([
+        function(cb){
+          chrome.usb.resetDevice(handle, function(success){
+            console.log('usb reset', success);
+            cb(null, success);
+          });
+        },
+        function(cb){
+          chrome.serial.getDevices(function(devices){
+            console.log('devices2', devices);
+            cb(null, devices);
+          });
+        }
+      ], function(err, results){
+        console.log(results);
+        cb(null, results[1]);
+      })
+    }
+  ], console.log)
 
   chrome.serial.getDevices(function (devices) {
     console.log(devices);

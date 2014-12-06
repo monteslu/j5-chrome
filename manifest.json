@@ -10,6 +10,15 @@
     }
   },
   "permissions": [
+    {
+      "usbDevices": [
+        {
+          "vendorId": 9025,
+          "productId": 67
+        }
+      ]
+    },
+    "usb",
     "serial",
     "unlimitedStorage",
     "http://*/",
