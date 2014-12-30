@@ -7,7 +7,7 @@ require('codemirror/lib/codemirror.css');
 require('codemirror/theme/monokai.css');
 
 var DEFAULT_SCRIPT = '/* \n'
-  + ' You have the following variables availaible to your script:\n'
+  + ' You have the following variables available to your script:\n'
   + '   five  = The full johnny-five API !\n'
   + '   io    = the firmata instance for the board\n'
   + '   $     = jQuery, because you might already know jQuery\n'
