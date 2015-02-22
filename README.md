@@ -17,5 +17,5 @@ Just want to use it? You can [install a pre-packaged version from Chrome Web Sto
 npm install
 gulp
 ````
-And load up the build directory as a chrome extenstion.
+And load up the build directory as a chrome extenstion. [Need help?](https://developer.chrome.com/apps/first_app#five)
 
