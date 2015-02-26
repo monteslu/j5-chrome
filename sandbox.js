@@ -7,7 +7,10 @@ var firmata = require('firmata');
 var SerialPort = require('./lib/postSerial');
 
 var Repl = require('johnny-five/lib/repl');
-Repl.isBlocked = true;
+Repl.prototype.initialize = function(callback){
+  console.log('repl initialize stub');
+  callback();
+}
 
 window.$ = $;
 window._ = _;
@@ -47,12 +50,14 @@ window.addEventListener('message', function(event) {
 
     window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
+      console.log('io ready');
       log('connect success');
-      // io.name = 'Firmata';
+      io.name = 'Firmata';
       io.isReady = true;
 
       try {
-        new Function(payload)();
+        var f = new Function(payload);
+        f();
         log('script run ok');
       } catch(e){
         log(e, 'danger');
