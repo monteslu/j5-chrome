@@ -48,23 +48,15 @@ window.addEventListener('message', function(event) {
     window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
       log('connect success');
-      io.name = 'Firmata';
+      // io.name = 'Firmata';
+      io.isReady = true;
 
-      // window.board = board = new five.Board({io: io, repl: false});
       try {
         new Function(payload)();
-        io.isReady = true;
-        //io.isConnected = true;
-        //io.ready = true;
-        io.emit('connect', {});
-        io.emit('ready', {});
         log('script run ok');
       } catch(e){
         log(e, 'danger');
       }
-      // board.on('error', function(err){
-      //   log(e, 'danger');
-      // });
     });
     io.on('error', function(err){
       log(e, 'danger');
