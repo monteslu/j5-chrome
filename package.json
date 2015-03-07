@@ -5,11 +5,11 @@
   "main": "main.js",
   "dependencies": {
     "brfs": "^1.2.0",
-    "browser-serialport": "git://github.com/jacobrosenthal/browser-serialport#jacob",
+    "browser-serialport": "^2.0.1",
     "codemirror": "^4.7.0",
     "firmata": "git://github.com/jgautier/firmata",
     "intel-hex": "^0.1.1",
-    "johnny-five": "^0.8.30",
+    "johnny-five": "^0.8.44",
     "jquery": "^2.1.1",
     "lodash": "^2.4.1",
     "react": "^0.12.1",
