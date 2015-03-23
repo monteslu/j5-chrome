@@ -2,6 +2,7 @@ window.repl = {}; // fake it til you make it
 
 var $ = require('jquery');
 var _ = require('lodash');
+var keypress = require('keypress');
 var five = require('johnny-five');
 var firmata = require('firmata');
 var SerialPort = require('./lib/postSerial');
