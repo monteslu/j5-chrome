@@ -11,12 +11,13 @@ var Repl = require('johnny-five/lib/repl');
 Repl.prototype.initialize = function(callback){
   console.log('repl initialize stub');
   callback();
-}
+};
 
 window.$ = $;
 window._ = _;
 window.five = five;
 window.firmata = firmata;
+window.keypress = keypress;
 
 var connectedSerial, io, board;
 
