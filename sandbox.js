@@ -2,6 +2,7 @@ window.repl = {}; // fake it til you make it
 
 var $ = require('jquery');
 var _ = require('lodash');
+var keypress = require('keypress');
 var five = require('johnny-five');
 var firmata = require('firmata');
 var SerialPort = require('./lib/postSerial');
@@ -10,12 +11,13 @@ var Repl = require('johnny-five/lib/repl');
 Repl.prototype.initialize = function(callback){
   console.log('repl initialize stub');
   callback();
-}
+};
 
 window.$ = $;
 window._ = _;
 window.five = five;
 window.firmata = firmata;
+window.keypress = keypress;
 
 var connectedSerial, io, board;
 
