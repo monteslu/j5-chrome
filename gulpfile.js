@@ -16,7 +16,11 @@ gulp.task('bundle', function(cb) {
       filename: '[name].js'
     },
     module: {
+      preLoaders: [
+        { test: /\.json$/, loader: 'json'},
+      ],
       loaders: [
+        { test: /\.json$/, loader: "json-loader" },
         { test: /\.jsx$/, loader: 'jsx-loader?harmony=true' },
         { test: /\.css$/, loader: 'style-loader!css-loader' },
         { test: /\.less$/, loader: 'style-loader!css-loader!less-loader' },
@@ -28,6 +32,22 @@ gulp.task('bundle', function(cb) {
     ],
     externals: {
       repl: 'repl'
+    },
+    resolveLoader: {
+      // this is a workaround for loaders being applied
+      // to linked modules
+      root: path.join(__dirname, 'node_modules')
+    },
+    resolve: {
+      // this is a workaround for aliasing a top level dependency
+      // inside a symlinked subdependency
+      root: path.join(__dirname, 'node_modules'),
+      alias: {
+        // replacing `fs` with a browser-compatible version
+        net: 'chrome-net',
+        serialport: 'browser-serialport',
+        "color-name": './lib/colorName.js'
+      }
     }
   }, cb);
 });

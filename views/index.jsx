@@ -8,9 +8,7 @@ var Layout = React.createClass({
 
   render: function(){
     return (
-      <div>
-        <Editor />
-      </div>
+      <Editor className="flexbox-item fill-area content flexbox-item-grow"/>
     );
   }
 });

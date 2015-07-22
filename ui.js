@@ -4,6 +4,8 @@ var $ = require('jquery');
 
 var SerialPort = require('browser-serialport').SerialPort;
 
+var scriptfs = require('./lib/scriptfs');
+
 var stk500 = require('stk500');
 var series = require('run-series');
 var hexParser = require('intel-hex');
@@ -74,6 +76,8 @@ function startApp(){
   $("#refreshBtn").click(loadDevices);
   $('#programBtn').click(programDevice);
   $("#runBtn").click(runCode);
+  $("#stdinTxt").keypress(handleKeypress);
+
 
   window.addEventListener('message', function(event) {
     var data = event.data;
@@ -107,6 +111,9 @@ function startApp(){
         infoMsg.className = 'alert thinAlert alert-' + info.type;
         infoArea.appendChild(infoMsg);
       });
+    } else if(command === 'speak'){
+      console.log('speaking ', payload);
+      chrome.tts.speak(payload + ' ');
     }
   });
 
@@ -162,12 +169,29 @@ function runCode(){
     connectedSerial.on('close', function(){
       setTimeout(startupJ5, 1000);
     });
-    connectedSerial.close();
+    try{
+      connectedSerial.close();
+    }catch(err){
+      console.log('error closing connectedSerial', err);
+      connectedSerial = null;
+      $("#runBtn").prop("disabled",false);
+    }
   }
   else{
     startupJ5();
   }
 
+}
+
+function handleKeypress(evt){
+  console.log(evt, evt.source);
+  evt.currentTarget.value = '';
+  if(sandboxWindow){
+    sandboxWindow.postMessage({
+      command: 'keypress',
+      payload: evt.which
+    }, '*');
+  }
 }
 
 function startupJ5(){
@@ -183,6 +207,9 @@ function startupJ5(){
   });
 
   console.log('posting runScript');
+  scriptfs.set(editor.state.content, function(err){
+    console.log('data saved', err);
+  });
   queuedMsg = {
     command: 'runScript',
     payload: editor.state.content

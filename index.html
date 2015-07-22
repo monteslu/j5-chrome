@@ -5,10 +5,11 @@
 
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="bootstrap/css/material.css"/>
-  </head>
-  <body class="container-fluid">
 
-    <div class="row">
+  </head>
+  <body>
+  <div class="flexbox-parent container-fluid">
+    <div class="row flexbox-item header">
       <label for="serialSelect" class="col-xs-2 col-md-1 control-label">Port:</label>
       <div class="col-xs-8 col-md-4">
         <div class="form-control-wrapper" id="devices"></div>
@@ -33,10 +34,18 @@
       </div>
     </div>
 
-    <div id="editor"></div>
-    <div id="infoArea" style="overflow: scroll; height: 200px;"></div>
+    <div id="editor" class="flexbox-item fill-area content flexbox-item-grow"></div>
+
+    <div class="flexbox-item footer">
+      <div id="infoArea" style="overflow: scroll; height: 200px;" style="display: flex; flex: 1; flex-direction: column; flex-grow: 1"></div>
+      <div id="inputArea" style="display: flex; flex: 1; flex-direction: column; flex-grow: 1">
+        <span>process.stdin <input type="text" id="stdinTxt" size="2"></span>
+      </div>
+    </div>
+  </div>
 
     <!-- our apps code and other dependencies -->
     <script src="ui.js"></script>
   </body>
 </html>
+

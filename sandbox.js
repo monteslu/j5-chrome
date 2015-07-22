@@ -1,34 +1,39 @@
 window.repl = {}; // fake it til you make it
 
-var $ = require('jquery');
-var _ = require('lodash');
+//ugh, just ugh
+delete window.localStorage;
+delete window.beforeunload;
+
+var browserbots = require('browserbots');
+console.log('browserbots', browserbots);
 var keypress = require('keypress');
-var five = require('johnny-five');
-var firmata = require('firmata');
+process.stdin = require('./lib/stdin');
 var SerialPort = require('./lib/postSerial');
 
-var Repl = require('johnny-five/lib/repl');
+var cachedRequire = require('./lib/cachedRequire');
+var five = cachedRequire('johnny-five');
+var firmata = cachedRequire('firmata');
+
+var Repl = cachedRequire('johnny-five/lib/repl');
 Repl.prototype.initialize = function(callback){
   console.log('repl initialize stub');
   callback();
 };
 
-window.$ = $;
-window._ = _;
+
 window.five = five;
-window.firmata = firmata;
-window.keypress = keypress;
+var require = cachedRequire
+window.require = require;
+
+window.browserbots = browserbots;
 
 var connectedSerial, io, board;
 
 console.log('launching sandbox');
 
-//browserify should shim stdin
-process.stdin = process.stdin || {};
-process.stdin.resume = function(){};
-process.stdin.setEncoding = function(){};
-process.stdin.once = function(){};
 
+var process = window.process = process;
+process.exit = function(){};
 
 function log(text, type){
   var msg = {
@@ -49,26 +54,29 @@ window.addEventListener('message', function(event) {
 
     connectedSerial = new SerialPort(window.parent);
     log('connecting...', 'info');
-
     window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
     io.once('ready', function(ir){
-      console.log('io ready');
-      log('connect success');
-      io.name = 'Firmata';
-      io.isReady = true;
-
-      try {
-        var f = new Function(payload);
-        f();
-        log('script run ok');
-      } catch(e){
-        log(e, 'danger');
-      }
+      log('io connection success');
     });
     io.on('error', function(err){
-      log(e, 'danger');
+      log('io error ' + e, 'danger');
     });
+
+    try{
+      //execute user's script
+      var f = new Function(payload);
+      f();
+      log('script executed');
+    } catch(e){
+      log(e, 'danger');
+    }
   }
+
+  else if(command === 'keypress' && payload){
+    console.log('keypress', payload);
+    process.stdin.emit('data', new Buffer([parseInt(payload)]));
+  }
+
 });
 
 window.parent.postMessage({ command: 'ready' }, '*');

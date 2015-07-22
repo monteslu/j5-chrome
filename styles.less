@@ -1,3 +1,71 @@
+
+html, body
+{
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+}
+
+.flexbox-parent
+{
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+
+    background: rgba(255, 255, 255, .1);
+}
+
+.flexbox-item{
+
+}
+
+.flexbox-item-grow
+{
+    flex: 1; /* same as flex: 1 1 auto; */
+}
+
+.flexbox-item.content
+{
+    background: rgba(0, 0, 255, .3);
+}
+
+.fill-area
+{
+    display: flex;
+    flex-direction: row;
+
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+
+}
+.fill-area-content
+{
+    background: rgba(0, 0, 0, .3);
+    border: 13px solid #000000;
+
+    /* Needed for when the area gets squished too far and there is content that can't be displayed */
+    overflow: auto;
+}
+
+.CodeMirror {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: unset;
+}
+.CodeMirror-scroll {
+  flex: 1;
+}
+
 .thinAlert {
   padding: 6px;
   margin-bottom: 4px;
@@ -11,6 +79,3 @@
   margin: 16px 0;
 }
 
-.CodeMirror {
-  height: 20em;
-}

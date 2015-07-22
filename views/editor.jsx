@@ -1,46 +1,66 @@
 'use strict';
 
 var React = require('react');
-var CodeMirror = require('react-code-mirror');
+// var CodeMirror = require('react-code-mirror');
+var scriptfs = require('../lib/scriptfs');
 require('codemirror/mode/javascript/javascript');
+require('codemirror/addon/search/searchcursor');
+require('codemirror/addon/dialog/dialog');
+require('codemirror/addon/dialog/dialog.css');
+require('codemirror/addon/search/search');
+require('codemirror/addon/selection/mark-selection');
+require('codemirror/addon/edit/matchbrackets');
+require('codemirror/addon/edit/closebrackets');
 require('codemirror/lib/codemirror.css');
 require('codemirror/theme/monokai.css');
 
-var DEFAULT_SCRIPT = '/* \n'
-  + ' You have the following variables available to your script:\n'
-  + '   five  = The full johnny-five API !\n'
-  + '   io    = the firmata instance for the board\n'
-  + '   $     = jQuery, because you might already know jQuery\n'
-  + '   _     = lodash, because lodash is awesome\n'
-  + '*/ \n\n'
-  + 'var board = new five.Board({io: io});\n\n'
-  + 'board.on(\'ready\', function(){\n'
-  + '  // Default to pin 13\n'
-  + '  var led = new five.Led(13);\n'
-  + '  led.blink();\n'
-  + '});';
+var CodeMirror = require('codemirror');
 
 
 var Editor = React.createClass({
   getInitialState: function(){
     return {
-      content: DEFAULT_SCRIPT
+      content: ''
     };
   },
 
   updateContent: function(e){
+    //console.log('updateContent', e);
     this.setState({
-      content: e.target.value
+      content: e.getValue()
+    });
+  },
+
+  componentDidMount: function() {
+    console.log('editor component did mount');
+    var self = this;
+    var container = React.findDOMNode(this);
+
+    scriptfs.get(function(err, data){
+      self.setState({
+        content: data
+      });
+
+      self.codeEditor = CodeMirror(container, {
+        mode: 'javascript',
+        theme: 'monokai',
+        lineNumbers: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        value: data,
+      });
+
+      self.codeEditor.on('change', self.updateContent);
+
     });
   },
 
   render: function(){
     return (
-      <CodeMirror
+      <div
         value={this.state.content}
-        mode='javascript'
-        theme='monokai'
-        onChange={this.updateContent} />
+        className='flexbox-item fill-area content flexbox-item-grow'
+      />
     );
   }
 });
