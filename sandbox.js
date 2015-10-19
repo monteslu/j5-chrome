@@ -3,6 +3,7 @@ window.repl = {}; // fake it til you make it
 //ugh, just ugh
 delete window.localStorage;
 delete window.beforeunload;
+delete window.onbeforeunload;
 
 var browserbots = require('browserbots');
 console.log('browserbots', browserbots);
@@ -29,6 +30,7 @@ window.browserbots = browserbots;
 
 var connectedSerial, io, board;
 
+
 console.log('launching sandbox');
 
 
@@ -46,7 +48,28 @@ function log(text, type){
 
 window.log = log;
 
+
+
 window.addEventListener('message', function(event) {
+
+  console.log =  function(text){
+    log(text);
+  };
+
+  console.info = function(text){
+    log(text, 'info');
+  };
+
+  console.error = function(text){
+    log(text, 'danger');
+  };
+
+  console.warn = function(text){
+    log(text, 'warning');
+  };
+
+
+
   var data = event.data;
   var command = data && data.command;
   var payload = data && data.payload;

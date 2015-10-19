@@ -45,8 +45,7 @@ gulp.task('bundle', function(cb) {
       alias: {
         // replacing `fs` with a browser-compatible version
         net: 'chrome-net',
-        serialport: 'browser-serialport',
-        "color-name": './lib/colorName.js'
+        serialport: 'browser-serialport'
       }
     }
   }, cb);
