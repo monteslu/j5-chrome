@@ -87,7 +87,7 @@ window.addEventListener('message', function(event) {
 
     try{
       //execute user's script
-      var f = new Function(payload);
+      var f = new Function(babel.transform(payload).code);
       f();
       log('script executed');
     } catch(e){

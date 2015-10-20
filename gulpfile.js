@@ -16,11 +16,8 @@ gulp.task('bundle', function(cb) {
       filename: '[name].js'
     },
     module: {
-      preLoaders: [
-        { test: /\.json$/, loader: 'json'},
-      ],
       loaders: [
-        { test: /\.json$/, loader: "json-loader" },
+        { test: /\.json$/, loader: "json" },,
         { test: /\.jsx$/, loader: 'jsx-loader?harmony=true' },
         { test: /\.css$/, loader: 'style-loader!css-loader' },
         { test: /\.less$/, loader: 'style-loader!css-loader!less-loader' },
@@ -57,7 +54,7 @@ gulp.task('copyBootstrap', function(){
 });
 
 gulp.task('copy', function() {
-  return gulp.src(['./*.png', './manifest.json', './*.html', './background.js', './*.css'])
+  return gulp.src(['./*.png', './manifest.json', './*.html', './background.js', './*.css', './node_modules/babel-core/browser.min.js'])
     .pipe(gulp.dest('./build/'));
 });
 
