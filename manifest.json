@@ -1,7 +1,7 @@
 {
   "name": "Johnny-Five Chrome",
   "description": "Use Johnny-Five inside of a chrome application",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "manifest_version": 2,
   "app": {
     "background": {
