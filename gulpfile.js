@@ -41,8 +41,10 @@ gulp.task('bundle', function(cb) {
       root: path.join(__dirname, 'node_modules'),
       alias: {
         // replacing `fs` with a browser-compatible version
-        net: 'chrome-net',
-        serialport: 'browser-serialport'
+        net: 'browser-serialport',
+        serialport: 'browser-serialport',
+        fs: 'browser-serialport',
+        tls: 'browser-serialport'
       }
     }
   }, cb);
