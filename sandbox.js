@@ -77,7 +77,7 @@ window.addEventListener('message', function(event) {
 
     connectedSerial = new SerialPort(window.parent);
     log('connecting...', 'info');
-    window.io = io = new firmata.Board(connectedSerial, {repl: false, skipHandshake: false, samplingInterval: 300});
+    window.io = io = new firmata.Board(connectedSerial, {repl: false, skipCapabilities: true, analogPins: [14,15,16,17,18,19], samplingInterval: 500});
     io.once('ready', function(ir){
       log('io connection success');
     });
