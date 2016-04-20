@@ -5,6 +5,8 @@ delete window.localStorage;
 delete window.beforeunload;
 delete window.onbeforeunload;
 
+process.hrtime = require('browser-process-hrtime');
+
 var browserbots = require('browserbots');
 console.log('browserbots', browserbots);
 var keypress = require('keypress');
