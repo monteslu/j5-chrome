@@ -1,8 +1,8 @@
-## Deprecation notice
+# Deprecation notice
 
-The functionality from Johnny-Five Chrome(Chromebots) is now part of [PageNodes](https://github.com/monteslu/pagenodes)
+The functionality from Johnny-Five Chrome(Chromebots) is now part of [PageNodes](https://github.com/monteslu/pagenodes) !
 
-Ongoing browser-based robotics is happening there, as well as ton of other IoT related features.
+Ongoing browser-based robotics is happening there, as well as ton of other IoT related features.  [Check it out](https://github.com/monteslu/pagenodes).
 
 
 Johnny-Five Chrome
